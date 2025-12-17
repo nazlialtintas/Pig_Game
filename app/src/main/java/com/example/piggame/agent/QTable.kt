@@ -20,6 +20,30 @@ class QTable {
         qValues.getOrPut(stateKey) { mutableMapOf() }[action] = value
     }
 
+    fun saveToStorage(context: android.content.Context) {
+        val prefs = context.getSharedPreferences("pig_game_prefs", android.content.Context.MODE_PRIVATE)
+        val data = qValues.map { (state, actions) ->
+            "$state|${actions[AgentAction.ROLL] ?: 0.0}|${actions[AgentAction.HOLD] ?: 0.0}"
+        }.joinToString(";")
+        prefs.edit().putString("agent_memory", data).apply()
+    }
+
+    fun loadFromStorage(context: android.content.Context) {
+        val prefs = context.getSharedPreferences("pig_game_prefs", android.content.Context.MODE_PRIVATE)
+        val data = prefs.getString("agent_memory", null) ?: return
+        qValues.clear()
+        data.split(";").forEach { line ->
+            val parts = line.split("|")
+            if (parts.size == 3) {
+                val state = parts[0]
+                val rollQ = parts[1].toDouble()
+                val holdQ = parts[2].toDouble()
+                qValues.getOrPut(state) { mutableMapOf() }[AgentAction.ROLL] = rollQ
+                qValues.getOrPut(state) { mutableMapOf() }[AgentAction.HOLD] = holdQ
+            }
+        }
+    }
+
     // Q-tablosunu temizle
     fun clear() {
         qValues.clear()
