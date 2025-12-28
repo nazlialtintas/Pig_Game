@@ -22,9 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.piggame.model.Player
-import kotlinx.coroutines.delay
 
-// Retro Casino Renkleri
 val CasinoDarkGreen = Color(0xFF0A3D16)
 val CasinoGold = Color(0xFFD4AF37)
 val CasinoRed = Color(0xFF8B0000)

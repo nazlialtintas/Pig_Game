@@ -41,7 +41,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             // Eğer hala 0 ise eğitimi başlat
             if (qTable.size() == 0) {
                 println("DEBUG: Ajan cahil, eğitim başlıyor...")
-                trainer.train(300000)
+                trainer.train(200000)
                 qTable.saveToStorage(context)
                 println("DEBUG: Eğitim bitti. Yeni Durum Sayısı: ${qTable.size()}")
             } else {
@@ -95,7 +95,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         if (_uiState.value.currentPlayer == Player.PLAYER_2 && !_uiState.value.isGameOver() && !_isRolling.value) {
             viewModelScope.launch {
                 delay(1000)
-                val action = agent.chooseAction(_uiState.value)
+                val action = agent.chooseAction(_uiState.value, isTraining = false)
                 if (action == AgentAction.ROLL) {
                     performRoll()
                 } else {
