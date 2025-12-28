@@ -18,6 +18,11 @@ class QLearningAgent(private val qTable: QTable) {
         if (state.currentTurnScore == 0) {
             return AgentAction.ROLL
         }
+
+        if (state.player2Score + state.currentTurnScore >= 100) {
+            return AgentAction.HOLD
+        }
+
         // Epsilon-Greedy stratejisi
         if (Random.nextDouble() < epsilon) {
             return AgentAction.values().random()
