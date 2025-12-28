@@ -41,11 +41,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun RetroPigApp(vm: GameViewModel = viewModel()) {
     val mode by vm.gameMode.collectAsState()
-    // ViewModel'daki gerçek yükleme durumunu dinliyoruz
     val isLoading by vm.isLoading.collectAsState()
 
     if (isLoading) {
-        // EĞİTİM EKRANI: Ajan öğrenene kadar burada bekletiyoruz
+        // Ajan öğrenene kadar bekle
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -53,7 +52,6 @@ fun RetroPigApp(vm: GameViewModel = viewModel()) {
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Şık bir yükleme animasyonu
                 CircularProgressIndicator(
                     color = CasinoGold,
                     strokeWidth = 4.dp
@@ -74,7 +72,7 @@ fun RetroPigApp(vm: GameViewModel = viewModel()) {
             }
         }
     } else {
-        // OYUN AKIŞI: Eğitim bittiği an burası tetiklenir
+        // Ajan öğrendi, oyun
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -111,22 +109,22 @@ fun GamePlayScreen(vm: GameViewModel) {
     val state by vm.uiState.collectAsState()
     val isRolling by vm.isRolling.collectAsState()
 
-    // Tüm ekranı kaplayan ana kutu (Overlay için Box kullanıyoruz)
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // 1. OYUN ALANI (Arka plandaki ana görünüm)
         Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Üst Bölüm: Skorlar
+            // Skorlar
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ScoreCard("PLAYER", state.player1Score, state.currentPlayer == Player.PLAYER_1, Modifier.weight(1f))
                 ScoreCard("AGENT", state.player2Score, state.currentPlayer == Player.PLAYER_2, Modifier.weight(1f))
             }
 
-            // Orta Bölüm: Zar ve Tur Puanı
+            TurnStatusText(currentPlayer = state.currentPlayer)
+
+            //  Zar ve Tur Puanı
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("TUR PUANI", color = CasinoGold.copy(alpha = 0.8f), fontSize = 16.sp)
                 Text("${state.currentTurnScore}", fontSize = 42.sp, color = Color.White, fontWeight = FontWeight.Bold)
@@ -134,7 +132,7 @@ fun GamePlayScreen(vm: GameViewModel) {
                 CasinoDiceView(state.lastRolledDice, isRolling)
             }
 
-            // Alt Bölüm: Kontroller
+            // Kontroller
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 CasinoButton(
                     "ZAR AT",
@@ -144,17 +142,19 @@ fun GamePlayScreen(vm: GameViewModel) {
                 CasinoButton(
                     "DUR",
                     onClick = { vm.onHoldClick() },
-                    enabled = state.currentPlayer == Player.PLAYER_1 && !state.isGameOver()
+                    enabled = state.currentPlayer == Player.PLAYER_1 &&
+                            !state.isGameOver() &&
+                            state.currentTurnScore > 0
                 )
             }
         }
 
-        // 2. OYUN BİTTİ EKRANI (Kazananı gösteren şık Overlay)
+        // Oyun bitti
         if (state.isGameOver()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.85f)) // Arka planı karart
+                    .background(Color.Black.copy(alpha = 0.85f))
                     .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -271,7 +271,6 @@ fun FinalScoreItem(label: String, score: Int) {
 @Composable
 fun DiceDotsDisplay(value: Int) {
     Box(modifier = Modifier.padding(12.dp).fillMaxSize()) {
-        val dotColor = Color.Black
         when (value) {
             1 -> Dot(Alignment.Center)
             2 -> { Dot(Alignment.TopEnd); Dot(Alignment.BottomStart) }
@@ -292,3 +291,26 @@ fun BoxScope.Dot(alignment: Alignment) {
     ) {}
 }
 
+@Composable
+fun TurnStatusText(currentPlayer: Player) {
+    val isPlayerTurn = currentPlayer == Player.PLAYER_1
+
+    val text = if (isPlayerTurn) "SIRA SENDE" else "SIRA AJANDA"
+    val textColor = if (isPlayerTurn) CasinoGold else Color(0xFFFF5252)
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+    ) {
+        Text(
+            text = text,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = textColor,
+            letterSpacing = 2.sp,
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
+}

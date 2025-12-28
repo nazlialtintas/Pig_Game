@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// AndroidViewModel kullanıyoruz ki Context üzerinden hafızaya erişebilelim
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val qTable = QTable()
     private val logic = GameLogic()
@@ -42,7 +41,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             // Eğer hala 0 ise eğitimi başlat
             if (qTable.size() == 0) {
                 println("DEBUG: Ajan cahil, eğitim başlıyor...")
-                trainer.train(100000) // 200 bin maç daha iyidir
+                trainer.train(300000)
                 qTable.saveToStorage(context)
                 println("DEBUG: Eğitim bitti. Yeni Durum Sayısı: ${qTable.size()}")
             } else {
@@ -82,7 +81,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _uiState.value = logic.nextState(_uiState.value, AgentAction.ROLL, dice)
             _isRolling.value = false
 
-            // SIRA KİMDEYSE ONA GÖRE KONTROL YAP
+
             if (!_uiState.value.isGameOver()) {
                 if (_uiState.value.currentPlayer == Player.PLAYER_2) {
                     checkAgentTurn() // Ajanın sırasıysa devam et
@@ -92,16 +91,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun checkAgentTurn() {
-        // Ajanın hamle yapması için gereken kontroller
+
         if (_uiState.value.currentPlayer == Player.PLAYER_2 && !_uiState.value.isGameOver() && !_isRolling.value) {
             viewModelScope.launch {
-                delay(1000) // Ajan düşünme süresi
+                delay(1000)
                 val action = agent.chooseAction(_uiState.value)
                 if (action == AgentAction.ROLL) {
                     performRoll()
                 } else {
                     _uiState.value = logic.nextState(_uiState.value, AgentAction.HOLD, 0)
-                    // Hold yapınca sıra oyuncuya geçer, döngü burada durur.
                 }
             }
         }

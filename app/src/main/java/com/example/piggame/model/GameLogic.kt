@@ -3,7 +3,6 @@ package com.example.piggame.model
 import kotlin.random.Random
 
 class GameLogic {
-    // Rastgele zar atar (1-6 arası)
     fun rollDice(): Int = Random.nextInt(1, 7)
 
     // Hamle sonrası yeni durumu hesaplar

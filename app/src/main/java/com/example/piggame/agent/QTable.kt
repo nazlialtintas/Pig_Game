@@ -42,7 +42,7 @@ class QTable {
                 qValues.getOrPut(state) { mutableMapOf() }[AgentAction.HOLD] = holdQ
             }
         }
-    }
+    }   
 
     // Q-tablosunu temizle
     fun clear() {

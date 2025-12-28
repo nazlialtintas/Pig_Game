@@ -3,19 +3,21 @@ package com.example.piggame.agent
 import com.example.piggame.model.AgentAction
 import com.example.piggame.model.GameLogic
 import com.example.piggame.model.GameState
-import com.example.piggame.model.Player
 import kotlin.random.Random
 
 class QLearningAgent(private val qTable: QTable) {
-    private val logic = GameLogic()
 
     // RL Parametreleri
     private val alpha = 0.1    // Öğrenme hızı
     private val gamma = 0.9    // Gelecekteki ödüllerin önemi
-    private val epsilon = 0.1  // %10 ihtimalle rastgele hareket et (Keşif)
+    private val epsilon = 0.1  // %10 ihtimalle rastgele hareket et
 
     // Ajanın karar verme anı
     fun chooseAction(state: GameState): AgentAction {
+
+        if (state.currentTurnScore == 0) {
+            return AgentAction.ROLL
+        }
         // Epsilon-Greedy stratejisi
         if (Random.nextDouble() < epsilon) {
             return AgentAction.values().random()
